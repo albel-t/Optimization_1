@@ -94,7 +94,6 @@ class App:
         self.entry_eps.insert(0, "0.01")
         self.entry_eps.pack(side=tk.LEFT, padx=(2, 12))
 
-        tk.Button(top, text="Построить", command=self.plot).pack(side=tk.LEFT, padx=10)
 
         self.info = tk.Label(top, text="", font=("Consolas", 10), justify=tk.LEFT)
         self.info.pack(side=tk.LEFT, padx=20)
