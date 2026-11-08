@@ -1,4 +1,3 @@
-
 import tkinter as tk
 from tkinter import ttk
 import numpy as np
@@ -9,20 +8,23 @@ def f(x):
     return x**3 + 1.5*x**2 - 6*x - 12
 
 def bisection(a, b, eps=0.01):
-    delta = eps / 2
+
     history = []
-    while (b - a) / 2 > eps:
-        c = (a + b) / 2
-        x1, x2 = c - delta, c + delta
+    while (b - a) > eps:
+        c  = (a + b) / 2
+        x1 = a + 0.25 * (b - a)
+        x2 = b - 0.25 * (b - a)
         f1, f2 = f(x1), f(x2)
-        history.append((a, b, c, f(c)))
+        history.append((a, b, c, x1, x2, f1, f2))
         if f1 < f2:
             b = c
-        else:
+        elif f1 > f2:
             a = c
+        else:
+            a, b = x1, x2
     root = (a + b) / 2
-    history.append((a, b, root, f(root)))
     return root, history
+
 def fibonacci_method(a, b, eps=0.01):
     fib = [1, 1]
     while (b - a) / fib[-1] > eps:
@@ -94,7 +96,6 @@ class App:
         self.entry_eps.insert(0, "0.01")
         self.entry_eps.pack(side=tk.LEFT, padx=(2, 12))
 
-
         self.info = tk.Label(top, text="", font=("Consolas", 10), justify=tk.LEFT)
         self.info.pack(side=tk.LEFT, padx=20)
 
@@ -130,22 +131,25 @@ class App:
         xs = np.linspace(a - 1, b + 1, 800)
         ys = f(xs)
 
+        # --- Панель 1: половинное деление ---
         ax = self.axes[0]
         ax.plot(xs, ys, 'k-', lw=1.5, label='f(x)')
         ax.axhline(0, color='gray', lw=0.8)
-        colors = plt.cm.viridis(np.linspace(0.1, 0.9, len(hist_b)))
-        for i, (ai, bi, ci, _) in enumerate(hist_b):
-            ax.plot([ci], [f(ci)], 'o', color=colors[i], ms=6)
-            ax.plot([ai, bi], [f(ai), f(bi)], '-', color=colors[i], lw=0.8, alpha=0.6)
+        colors = plt.cm.viridis(np.linspace(0.1, 0.9, max(len(hist_b), 1)))
+        for i, (ai, bi, ci, x1, x2, f1, f2) in enumerate(hist_b):
+            ax.plot([ci], [f(ci)], 's', color='gray', ms=4, alpha=0.7)
+            ax.plot([x1, x2], [f1, f2], 'o', color=colors[i], ms=6)
+            ax.plot([ai, bi], [f(ai), f(bi)], '-', color=colors[i], lw=0.8, alpha=0.5)
         ax.axvline(root_b, color='red', ls='--', lw=1, label=f'x* = {root_b:.4f}')
         ax.set_title(f'Метод половинного деления (итераций: {len(hist_b)}, x* = {root_b:.6f})')
         ax.grid(True, alpha=0.3)
         ax.legend(loc='best')
 
+        # --- Панель 2: Фибоначчи ---
         ax = self.axes[1]
         ax.plot(xs, ys, 'k-', lw=1.5, label='f(x)')
         ax.axhline(0, color='gray', lw=0.8)
-        colors = plt.cm.plasma(np.linspace(0.1, 0.9, len(hist_f)))
+        colors = plt.cm.plasma(np.linspace(0.1, 0.9, max(len(hist_f), 1)))
         for i, (ai, bi, x1, x2, f1, f2) in enumerate(hist_f):
             ax.plot([x1, x2], [f1, f2], 'o', color=colors[i], ms=6)
             ax.plot([ai, bi], [f(ai), f(bi)], '-', color=colors[i], lw=0.8, alpha=0.5)
@@ -154,10 +158,11 @@ class App:
         ax.grid(True, alpha=0.3)
         ax.legend(loc='best')
 
+        # --- Панель 3: золотое сечение ---
         ax = self.axes[2]
         ax.plot(xs, ys, 'k-', lw=1.5, label='f(x)')
         ax.axhline(0, color='gray', lw=0.8)
-        colors = plt.cm.cividis(np.linspace(0.1, 0.9, len(hist_g)))
+        colors = plt.cm.cividis(np.linspace(0.1, 0.9, max(len(hist_g), 1)))
         for i, (ai, bi, x1, x2, f1, f2) in enumerate(hist_g):
             ax.plot([x1, x2], [f1, f2], 'o', color=colors[i], ms=6)
             ax.plot([ai, bi], [f(ai), f(bi)], '-', color=colors[i], lw=0.8, alpha=0.5)
